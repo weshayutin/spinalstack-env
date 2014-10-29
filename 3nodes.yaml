@@ -1,0 +1,355 @@
+infra: 3nodes
+profiles:
+  install-server:
+    steps:
+      1:
+        roles:
+          - cloud::logging::server
+          - cloud::monitoring::server::sensu
+  openstack-full:
+    steps:
+      1:
+        roles:
+          - cloud::logging::agent
+      3:
+        roles:
+          - cloud::monitoring::agent::sensu
+hosts:
+  installserver:
+    profile: install-server
+    ip: 192.168.142.5
+    config:
+      cloud::logging::agent::syslog_enable: false
+      fluentd::version: '2'
+      elasticsearch::init_template: elasticsearch.RedHat.erb
+      kibana3::manage_ws: false
+      kibana3::config_es_server: "%{::ipaddress}"
+      kibana3::config_kibana_index: fluentd
+      sensu::server: true
+      sensu::api: true
+      sensu::subscriptions: base
+      sensu::rabbitmq_password: rabbitpassword
+      sensu::rabbitmq_host: 192.168.142.6
+      sensu::rabbitmq_vhost: '/sensu'
+      sensu::install_repo: false
+      uchiwa::install_repo: false
+      uchiwa::user: admin
+      uchiwa::pass: password
+      uchiwa::host: "%{::ipaddress}"
+      uchiwa::install_repo: false
+      cloud::monitoring::server::sensu::checks:
+        'check-mem' :
+          command: '/etc/sensu/plugins/check-mem.sh -w 150 -c 100'
+          subscribers: base
+          standalone: false
+      cloud::monitoring::server::sensu::plugins:
+        'https://raw.githubusercontent.com/sensu/sensu-community-plugins/master/plugins/system/check-mem.sh' :
+          type: url
+      cloud::logging::agent::sources:
+        syslog:
+          configfile: syslog
+          type: syslog
+          tag: system.syslog
+          config:
+            port: 5140
+            bind: 0.0.0.0
+            with_priority:
+      cloud::logging::agent::matches:
+        elasticsearch:
+          configfile: elasticsearch
+          pattern: "**"
+          type: elasticsearch
+          config:
+            logstash_format: true
+            index_name: fluentd
+            type_name: fluentd
+            port: 9200
+            host: "%{::ipaddress}"
+  openstack1:
+    profile: openstack-full
+    ip: 192.168.142.6
+    config:
+      cloud::compute::hypervisor::vm_rbd: false
+      cloud::storage::rbd::osd::public_address: "%{hiera('public_netif_ip')}"
+      cloud::storage::rbd::osd::cluster_address: "%{hiera('internal_netif_ip')}"
+      cloud::storage::rbd::public_network: "%{hiera('ceph_public_network')}"
+      cloud::storage::rbd::cluster_network: "%{hiera('ceph_cluster_network')}"
+      cloud::storage::rbd::osd::devices: "%{hiera('ceph_osd_devices')}"
+      cloud::loadbalancer::keepalived_priority: 49
+      cloud::storage::rbd::pools::setup_pools: true
+      cloud::object::storage::swift_zone: 1
+      cloud::storage::rbd::key::enabled: true
+      cloud::object::ringbuilder::enabled: true
+      cloud::object::storage::fstype: loopback
+      cloud::object::storage::device_config_hash:
+        loop0:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop1:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop2:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+      cloud::object::storage::ring_container_device: loop0
+      cloud::object::storage::ring_account_device: loop0
+      fluentd::version: '2'
+      sensu::subscriptions: base
+      sensu::rabbitmq_password: rabbitpassword
+      sensu::rabbitmq_host: 192.168.142.6
+      sensu::rabbitmq_vhost: '/sensu'
+      sensu::install_repo: false
+  openstack2:
+    profile: openstack-full
+    ip: 192.168.142.7
+    config:
+      cloud::compute::hypervisor::vm_rbd: false
+      cloud::storage::rbd::osd::public_address: "%{hiera('public_netif_ip')}"
+      cloud::storage::rbd::osd::cluster_address: "%{hiera('internal_netif_ip')}"
+      cloud::storage::rbd::public_network: "%{hiera('ceph_public_network')}"
+      cloud::storage::rbd::cluster_network: "%{hiera('ceph_cluster_network')}"
+      cloud::storage::rbd::osd::devices: "%{hiera('ceph_osd_devices')}"
+      cloud::loadbalancer::keepalived_priority: 49
+      cloud::object::storage::swift_zone: 2
+      cloud::object::storage::fstype: loopback
+      cloud::object::storage::device_config_hash:
+        loop0:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop1:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop2:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+      cloud::object::storage::ring_container_device: loop0
+      cloud::object::storage::ring_account_device: loop0
+      fluentd::version: '2'
+      sensu::subscriptions: base
+      sensu::rabbitmq_password: rabbitpassword
+      sensu::rabbitmq_host: 192.168.142.6
+      sensu::rabbitmq_vhost: '/sensu'
+      sensu::install_repo: false
+  openstack3:
+    profile: openstack-full
+    ip: 192.168.142.8
+    config:
+      cloud::compute::hypervisor::vm_rbd: false
+      cloud::storage::rbd::osd::public_address: "%{hiera('public_netif_ip')}"
+      cloud::storage::rbd::osd::cluster_address: "%{hiera('internal_netif_ip')}"
+      cloud::storage::rbd::public_network: "%{hiera('ceph_public_network')}"
+      cloud::storage::rbd::cluster_network: "%{hiera('ceph_cluster_network')}"
+      cloud::storage::rbd::osd::devices: "%{hiera('ceph_osd_devices')}"
+      cloud::loadbalancer::keepalived_state: MASTER
+      cloud::object::storage::swift_zone: 3
+      cloud::object::storage::fstype: loopback
+      cloud::object::storage::device_config_hash:
+        loop0:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop1:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+        loop2:
+          base_dir: /srv/loopback_device
+          mnt_base_dir: /srv/node
+          byte_size: 1024
+          seek: 10000000
+          fstype: xfs
+      cloud::object::storage::ring_container_device: loop0
+      cloud::object::storage::ring_account_device: loop0
+      fluentd::version: '2'
+      sensu::subscriptions: base
+      sensu::rabbitmq_password: rabbitpassword
+      sensu::rabbitmq_host: 192.168.142.6
+      sensu::rabbitmq_vhost: '/sensu'
+      sensu::install_repo: false
+
+config:
+  domain: example.com
+  user: jenkins
+  puppet_master: installserver.example.com
+  parallel_steps: 2|4|5
+  region: zone42
+  dns_ips: 8.8.8.8
+  vip_public_fqdn: vip.example.com
+  vip_public_ip: 192.168.142.42
+  vip_admin_ip: 192.168.142.42
+  vip_admin_fqdn: vip.example.com
+  vip_internal_fqdn: vip.example.com
+  endpoint_proto: http
+
+  mgmt_names: ['openstack1', 'openstack2', 'openstack3']
+  mgmt_internal_ips: ['192.168.142.6', '192.168.142.7', '192.168.142.8']
+  spof_cluster_members : 'openstack1 openstack2 openstack3'
+  horizon_allowed_hosts:
+    - vip.example.com
+
+  public_network: 192.168.142.0/24
+  internal_network: 192.168.142.0/24
+  admin_network: 192.168.142.0/24
+  storage_network: 192.168.142.0/24
+
+  mongo_replset_members:
+    - 192.168.142.6:27017
+    - 192.168.142.7:27017
+    - 192.168.142.8:27017
+  
+  ntp_servers:
+    - 0.centos.pool.ntp.org
+    - 1.centos.pool.ntp.org
+    - 2.centos.pool.ntp.org
+    - 3.centos.pool.ntp.org
+
+  root_password: root
+  
+  public_netif: eth0
+  internal_netif: eth0
+  admin_netif: eth0
+  storage_netif: eth0
+  lb_public_netif: eth0
+  lb_internal_netif: eth0
+  external_netif: eth1
+
+  public_netif_ip: "%{::ipaddress_eth0}"
+  internal_netif_ip: "%{::ipaddress_eth0}"
+  admin_netif_ip: "%{::ipaddress_eth0}"
+  storage_netif_ip: "%{::ipaddress_eth0}"
+
+  keystone_db_user: keystone
+  keystone_db_password: kestone_db_password
+  ks_admin_email: admin@example.com
+  ks_admin_password: password
+  ks_admin_tenant: admin
+  ks_admin_token: kpimopmiopmidfmpoifdmsaifdsanufdsqiufwqnufidsapnuipsafds
+
+  ks_swift_dispersion_password: geldfqwyfewqoiuyfowqudwqoiyfwqee
+  ks_swift_password: ks_swift_password
+  swift_hash_suffix: gfrewqfqfwqfewqo
+  replicas: 3
+  statsd_host: 127.0.0.1
+
+  mysql_root_password: password
+  mysql_sys_maint_user: sys-maint
+  mysql_sys_maint_password: password
+  galera_clustercheck_dbuser: clustercheckuser
+  galera_clustercheck_dbpassword: clustercheckpassword!
+  galera_master_name: openstack1
+
+  db_allowed_hosts:
+    - openstack%
+    - 192.168.142.%
+
+  haproxy_auth: root:password
+
+  secret_key: secret
+
+  rabbit_password: rabbitpassword
+  rabbit_host: 192.168.142.6
+  rabbit_hosts:
+    - 192.168.142.6:5672
+    - 192.168.142.7:5672
+    - 192.168.142.8:5672
+
+  ks_neutron_password: ks_neutron_password
+  neutron_db_password: neutron_db_password
+  ks_neutron_admin_proto: https
+  neutron_type_drivers:
+    - gre
+  neutron_mechanism_drivers: openvswitch
+  neutron_tunnel_id_ranges: 1:10000
+  neutron_firewall_driver: neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewall
+  neutron_metadata_proxy_shared_secret: jffoiewirepwnfudenvfuieqE
+      
+  ks_nova_password: ks_nova_password
+  nova_db_password: nova_db_password
+  nova_ssh_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDXNH7GNk1+4ECAqPJd7SJskjQ4g4ASnKaDeH+MfbzVQV3g5+GPC+dF/G5Pugmom8juOGSah+8RKYs/WSctNSEkaMrUwkeoWInstssrP0715R6c+oSpfuMpMATsI2/RV43RnnKcALW28CV8vZfTgdBY7GrZc04C7wifw8Ov0srf4l/QsKn5x80YWJ4TOL1o2XTg2pAME8iKlrBtuymBl9PROctyzeu+WPfqkkXF2iBiQMp1Vw8YbnRQ5IFfMlUZGrmaIcld4qekObY4Dpbd86vis3Ahdx50P71kxUGnHNdFoEqW5WRqrlier4+o/45WR+3I8mZScExW1qWfeiSg8zW7 spinalstack@example.com
+  nova_ssh_private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEowIBAAKCAQEA1zR+xjZNfuBAgKjyXe0ibJI0OIOAEpymg3h/jH281UFd4Ofh
+    jwvnRfxuT7oJqJvI7jhkmofvESmLP1knLTUhJGjK1MJHqFiJ7LbLKz9O9eUenPqE
+    qX7jKTAE7CNv0VeN0Z5ynAC1tvAlfL2X04HQWOxq2XNOAu8In8PDr9LK3+Jf0LCp
+    +cfNGFieEzi9aNl04NqQDBPIipawbbspgZfT0TnLcs3rvlj36pJFxdogYkDKdVcP
+    GG50UOSBXzJVGRq5miHJXeKnpDm2OA6W3fOr4rNwIXcedD+9ZMVBpxzXRaBKluVk
+    aq5Ynq+PqP+OVkftyPJmUnBMVtaln3okoPM1uwIDAQABAoIBAALX/LzdxtRgXjnV
+    Aa7gDU5l+C6u/ihAzap7EyRmHPKsdHMeXUqom5u/JC4FhU8nD9amBB5OoYgWhnKF
+    2RCt3QxAHj4FezDsSpZILBMcOQzixC7K2KnstU+8BLSiGz4m7AbTEyygjcYnEje9
+    wZ3X30rthNPuxB8hzXle+tz96hRfQS/Oicjz/FqrjYkgasfjXr9rvdMF3NIHSGq7
+    eeUMnb+m6CM93FBz0wELACTqUL4icxBTmi1FS3fIOuGs7P/Aq00wXiLKCErUDIFv
+    IZxRB264gmzMEuvMd9yW1dVvq0eAi3XD6rQ6pe04BpBgPsOLgNUnJ9TQwIZQg7xK
+    0/titHECgYEA/jLAtihTc5dTdnQFWyRfeN5OhtfAsPPd8gYwOD7VJyIXxNJJUvoR
+    Jk0j3egu0n8SqvmDh+TJxnq9HN5DIzDiZQOHJblSV1ElraHk2WO9egcACa4CLLsS
+    aJOn2PXtMX8WDQnYTHXR5E+mPt8BqPveTTvLOvrxKr3tbw/h9dLSTWUCgYEA2Lr9
+    FHxi0VQdVYlW4nkNAt7tz6EzzbfMtrbMYgd8rJrWaVFLYRlgODtJZh36CcN+LNo5
+    qTwTnF9oOyVaAdFCqSzfa7nMTIXSmsWRfJshk3vwjH6K5x50+EX4oMc1WSlTkDsO
+    IyWIdFkZ7x5MMReGfErwfFkZC2gfl0h7IbwwVJ8CgYBZfUSa3FeEuiGH8hBwpb12
+    r8y1a/9KTJA2RDd1lak0vavgfqeRrrea5E1cMgFJ2bKYvn6vuLvQRCWPpC++k9cf
+    +L37aeKzGr5JAlWuso5iB1TcE4ZweOtiJZlRqEJ4ymTY8j5TrKbX2bKNL7VF6GW6
+    ivJhMTb19SdBkjXadP3UgQKBgHcOGPJE9f+ppkeTn0/fUV9vWNHC6vMp8WG5fwKm
+    vD0Q/ZFzH+ZiCzI4lzRqaS0t38UBx8UIhHlVC6vZ89yluGm4ha7mrKyooq10tFvv
+    1/zti5GR/fnCCF1OCqs/YzXsdsP3POffuVq4i3+IdDBPjQgAHqUgSJq0gw4WudUp
+    TJ9fAoGBAMFtNjEv0a0SYGCm66NEg3Itnm3fPFxFzTdtu5R+UZPekOXjr3z2ASuK
+    2LK5My/scgVpWPSh0AkYVWYjtk+LhXZ4GYWM0q3Aj4RNGyIqkX/CqFDMMWBDu3YE
+    8ZiV84kBu/3yCpDyrBnDj/egOIj+jBWA2eOiJ/V2FYhPn9zCZpFW
+    -----END RSA PRIVATE KEY-----
+
+  glance_db_password: glance_db_password
+  ks_glance_password: ks_glance_db_password
+
+  ceilometer_secret: ceilometer_secret
+  ks_ceilometer_password: ks_ceilometer_password
+
+  cinder_db_password: cinder_db_password
+  ks_cinder_password: ks_ceilometer_password
+
+  trove_db_password: trove_db_password
+  ks_trove_password: ks_trobe_password
+
+  heat_db_password: heat_db_password
+  ks_heat_password: ks_heat_password
+  heat_auth_encryption_key: akeytoencrypt
+
+  ceph_osd_devices:
+    - sdb
+    - sdc
+    - sdd
+  ceph_fsid: 37788630-5f77-11e4-9803-0800200c9a66
+  ceph_mon_secret: frewgrjewgRewjgfwfebiugreiuguegyreucuw==
+  cinder_rbd_pool: volumes
+  cinder_rbd_user: cinder
+
+  volume_default_volume_type: ceph
+  volume_cinder_backends:
+    rbd:
+      ceph:
+        rbd_pool: volumes
+        rbd_user: cinder
+        rbd_secret_uuid: 37788630-5f77-11e4-9803-0800200c9a66
+
+  libvirt_type: kvm
+  syslog_server: installserver
+  syslog_port: 5140
