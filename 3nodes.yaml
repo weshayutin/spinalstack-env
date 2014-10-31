@@ -191,7 +191,7 @@ hosts:
 
 config:
   domain: example.com
-  user: jenkins
+  user: root
   puppet_master: installserver.example.com
   parallel_steps: 2|4|5
   region: zone42
@@ -334,11 +334,11 @@ config:
   heat_auth_encryption_key: akeytoencrypt
 
   ceph_osd_devices:
-    - sdb
-    - sdc
-    - sdd
+    - vdb
+    - vdc
+    - vdd
   ceph_fsid: 37788630-5f77-11e4-9803-0800200c9a66
-  ceph_mon_secret: frewgrjewgRewjgfwfebiugreiuguegyreucuw==
+  ceph_mon_secret: AQD7kyJQQGoOBhAAqrPAqSopSwPrrfMMomzVdw==
   cinder_rbd_pool: volumes
   cinder_rbd_user: cinder
 
