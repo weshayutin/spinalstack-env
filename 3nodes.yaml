@@ -317,6 +317,7 @@ config:
     8ZiV84kBu/3yCpDyrBnDj/egOIj+jBWA2eOiJ/V2FYhPn9zCZpFW
     -----END RSA PRIVATE KEY-----
 
+  glance_backend: file
   glance_db_password: glance_db_password
   ks_glance_password: ks_glance_db_password
 
@@ -341,14 +342,6 @@ config:
   ceph_mon_secret: AQD7kyJQQGoOBhAAqrPAqSopSwPrrfMMomzVdw==
   cinder_rbd_pool: volumes
   cinder_rbd_user: cinder
-
-  volume_default_volume_type: ceph
-  volume_cinder_backends:
-    rbd:
-      ceph:
-        rbd_pool: volumes
-        rbd_user: cinder
-        rbd_secret_uuid: 37788630-5f77-11e4-9803-0800200c9a66
 
   libvirt_type: kvm
   syslog_server: installserver
