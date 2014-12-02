@@ -1,0 +1,11 @@
+# serverX eth0
+00:00:00:00:00:00 server1
+00:00:00:00:00:00 server2
+00:00:00:00:00:00 server3
+00:00:00:00:00:00 server4
+
+# serverX eth1
+11:11:11:11:11:11 server1-priv
+11:11:11:11:11:11 server2-priv
+11:11:11:11:11:11 server3-priv
+11:11:11:11:11:11 server4-priv

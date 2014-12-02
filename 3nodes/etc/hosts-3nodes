@@ -1,0 +1,14 @@
+XXX.XXX.XXX.XXX server1-ipmi.example.com server1-ipmi
+XXX.XXX.XXX.XXX server2-ipmi.example.com server2-ipmi
+XXX.XXX.XXX.XXX server3-ipmi.example.com server3-ipmi
+XXX.XXX.XXX.XXX server4-ipmi.example.com server4-ipmi
+
+XXX.XXX.XXX.XXX server1.example.com server1
+XXX.XXX.XXX.XXX server2.example.com server2
+XXX.XXX.XXX.XXX server3.example.com server3
+XXX.XXX.XXX.XXX server4.example.com server4
+
+XXX.XXX.XXX.XXX server1-priv.example.com server1-priv
+XXX.XXX.XXX.XXX server2-priv.example.com server2-priv
+XXX.XXX.XXX.XXX server3-priv.example.com server3-priv
+XXX.XXX.XXX.XXX server4-priv.example.com server4-priv

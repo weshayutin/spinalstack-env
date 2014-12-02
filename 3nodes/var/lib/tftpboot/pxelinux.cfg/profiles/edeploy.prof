@@ -1,0 +1,8 @@
+DEFAULT eDeploy
+
+prompt 0
+timeout 0
+
+LABEL eDeploy
+    KERNEL vmlinuz
+    APPEND initrd=initrd.pxe SERV=XXX.XXX.XXX.XXX HSERV=XXX.XXX.XXX.XXX ONFAILURE=console RSERV=XXX.XXX.XXX.XXX UPLOAD_LOG=1 ONSUCCESS=reboot VERBOSE=1 IP=eth0:dhcp,other:none | edd=off |
