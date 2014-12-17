@@ -195,7 +195,7 @@ config:
   puppet_master: installserver.example.com
   parallel_steps: 2|4|5
   region: zone42
-  dns_ips: 8.8.8.8
+  dns_ips: 10.16.36.29
   vip_public_fqdn: vip.example.com
   vip_public_ip: 192.168.142.42
   vip_admin_ip: 192.168.142.42
@@ -218,7 +218,7 @@ config:
     - 192.168.142.6:27017
     - 192.168.142.7:27017
     - 192.168.142.8:27017
-  
+
   ntp_servers:
     - 0.centos.pool.ntp.org
     - 1.centos.pool.ntp.org
@@ -226,7 +226,7 @@ config:
     - 3.centos.pool.ntp.org
 
   root_password: root
-  
+
   public_netif: eth0
   internal_netif: eth0
   admin_netif: eth0
@@ -284,7 +284,7 @@ config:
   neutron_tunnel_id_ranges: 1:10000
   neutron_firewall_driver: neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewall
   neutron_metadata_proxy_shared_secret: jffoiewirepwnfudenvfuieqE
-      
+
   ks_nova_password: ks_nova_password
   nova_db_password: nova_db_password
   nova_ssh_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDXNH7GNk1+4ECAqPJd7SJskjQ4g4ASnKaDeH+MfbzVQV3g5+GPC+dF/G5Pugmom8juOGSah+8RKYs/WSctNSEkaMrUwkeoWInstssrP0715R6c+oSpfuMpMATsI2/RV43RnnKcALW28CV8vZfTgdBY7GrZc04C7wifw8Ov0srf4l/QsKn5x80YWJ4TOL1o2XTg2pAME8iKlrBtuymBl9PROctyzeu+WPfqkkXF2iBiQMp1Vw8YbnRQ5IFfMlUZGrmaIcld4qekObY4Dpbd86vis3Ahdx50P71kxUGnHNdFoEqW5WRqrlier4+o/45WR+3I8mZScExW1qWfeiSg8zW7 spinalstack@example.com
