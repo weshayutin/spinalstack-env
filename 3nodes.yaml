@@ -220,6 +220,7 @@ config:
     - 192.168.142.8:27017
 
   ntp_servers:
+    - clock.redhat.com
     - 0.centos.pool.ntp.org
     - 1.centos.pool.ntp.org
     - 2.centos.pool.ntp.org
