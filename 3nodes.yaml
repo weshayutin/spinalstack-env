@@ -195,7 +195,10 @@ config:
   puppet_master: installserver.example.com
   parallel_steps: 2|4|5
   region: zone42
-  dns_ips: 10.16.36.29
+  dns_ips:
+    - 10.16.36.29
+    - 10.11.5.19
+    - 10.5.30.160
   vip_public_fqdn: vip.example.com
   vip_public_ip: 192.168.142.42
   vip_admin_ip: 192.168.142.42
@@ -221,10 +224,7 @@ config:
 
   ntp_servers:
     - clock.redhat.com
-    - 0.centos.pool.ntp.org
-    - 1.centos.pool.ntp.org
-    - 2.centos.pool.ntp.org
-    - 3.centos.pool.ntp.org
+    - clock.corp.redhat.com
 
   root_password: root
 
